@@ -221,7 +221,7 @@ function drawMap(g) {
     // Draw map
     for (var y = 0; y < map.length; y++) {
         for (var x = 0; x < map[y].length; x++) {
-            color0fTile(g, x, y);
+            map[x][y].color(g);
             if (!map[y][x].isAir() && !map[y][x].isPlayer)
                 g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
@@ -242,6 +242,8 @@ var Air = /** @class */ (function () {
     Air.prototype.isLock1 = function () { return false; };
     Air.prototype.isKey2 = function () { return false; };
     Air.prototype.isLock2 = function () { return false; };
+    Air.prototype.color = function (g) {
+    };
     return Air;
 }());
 var Flux = /** @class */ (function () {
@@ -259,6 +261,9 @@ var Flux = /** @class */ (function () {
     Flux.prototype.isLock1 = function () { return false; };
     Flux.prototype.isKey2 = function () { return false; };
     Flux.prototype.isLock2 = function () { return false; };
+    Flux.prototype.color = function (g) {
+        g.fillStyle = "#ccffcc";
+    };
     return Flux;
 }());
 var Unbreakable = /** @class */ (function () {
@@ -276,6 +281,9 @@ var Unbreakable = /** @class */ (function () {
     Unbreakable.prototype.isLock1 = function () { return false; };
     Unbreakable.prototype.isKey2 = function () { return false; };
     Unbreakable.prototype.isLock2 = function () { return false; };
+    Unbreakable.prototype.color = function (g) {
+        g.fillStyle = "#999999";
+    };
     return Unbreakable;
 }());
 var Player = /** @class */ (function () {
@@ -293,6 +301,8 @@ var Player = /** @class */ (function () {
     Player.prototype.isLock1 = function () { return false; };
     Player.prototype.isKey2 = function () { return false; };
     Player.prototype.isLock2 = function () { return false; };
+    Player.prototype.color = function (g) {
+    };
     return Player;
 }());
 var Stone = /** @class */ (function () {
@@ -310,6 +320,9 @@ var Stone = /** @class */ (function () {
     Stone.prototype.isLock1 = function () { return false; };
     Stone.prototype.isKey2 = function () { return false; };
     Stone.prototype.isLock2 = function () { return false; };
+    Stone.prototype.color = function (g) {
+        g.fillStyle = "#0000cc";
+    };
     return Stone;
 }());
 var FallingStone = /** @class */ (function () {
@@ -327,6 +340,9 @@ var FallingStone = /** @class */ (function () {
     FallingStone.prototype.isLock1 = function () { return false; };
     FallingStone.prototype.isKey2 = function () { return false; };
     FallingStone.prototype.isLock2 = function () { return false; };
+    FallingStone.prototype.color = function (g) {
+        g.fillStyle = "#0000cc";
+    };
     return FallingStone;
 }());
 var Box = /** @class */ (function () {
@@ -344,6 +360,9 @@ var Box = /** @class */ (function () {
     Box.prototype.isLock1 = function () { return false; };
     Box.prototype.isKey2 = function () { return false; };
     Box.prototype.isLock2 = function () { return false; };
+    Box.prototype.color = function (g) {
+        g.fillStyle = "#8b4513";
+    };
     return Box;
 }());
 var FallingBox = /** @class */ (function () {
@@ -361,6 +380,9 @@ var FallingBox = /** @class */ (function () {
     FallingBox.prototype.isLock1 = function () { return false; };
     FallingBox.prototype.isKey2 = function () { return false; };
     FallingBox.prototype.isLock2 = function () { return false; };
+    FallingBox.prototype.color = function (g) {
+        g.fillStyle = "#8b4513";
+    };
     return FallingBox;
 }());
 var Key1 = /** @class */ (function () {
@@ -378,6 +400,9 @@ var Key1 = /** @class */ (function () {
     Key1.prototype.isLock1 = function () { return false; };
     Key1.prototype.isKey2 = function () { return false; };
     Key1.prototype.isLock2 = function () { return false; };
+    Key1.prototype.color = function (g) {
+        g.fillStyle = "#ffcc00";
+    };
     return Key1;
 }());
 var Lock1 = /** @class */ (function () {
@@ -395,6 +420,9 @@ var Lock1 = /** @class */ (function () {
     Lock1.prototype.isLock1 = function () { return true; };
     Lock1.prototype.isKey2 = function () { return false; };
     Lock1.prototype.isLock2 = function () { return false; };
+    Lock1.prototype.color = function (g) {
+        g.fillStyle = "#ffcc00";
+    };
     return Lock1;
 }());
 var Key2 = /** @class */ (function () {
@@ -412,6 +440,9 @@ var Key2 = /** @class */ (function () {
     Key2.prototype.isLock1 = function () { return false; };
     Key2.prototype.isKey2 = function () { return true; };
     Key2.prototype.isLock2 = function () { return false; };
+    Key2.prototype.color = function (g) {
+        g.fillStyle = "#00ccff";
+    };
     return Key2;
 }());
 var Lock2 = /** @class */ (function () {
@@ -429,22 +460,11 @@ var Lock2 = /** @class */ (function () {
     Lock2.prototype.isLock1 = function () { return false; };
     Lock2.prototype.isKey2 = function () { return false; };
     Lock2.prototype.isLock2 = function () { return true; };
+    Lock2.prototype.color = function (g) {
+        g.fillStyle = "#00ccff";
+    };
     return Lock2;
 }());
-function color0fTile(g, x, y) {
-    if (map[y][x].isFlux())
-        g.fillStyle = "#ccffcc";
-    else if (map[y][x].isUnbreakable())
-        g.fillStyle = "#999999";
-    else if (map[y][x].isStone() || map[y][x].isFallingStone())
-        g.fillStyle = "#0000cc";
-    else if (map[y][x].isBox() || map[y][x].isFallingBox())
-        g.fillStyle = "#8b4513";
-    else if (map[y][x].isKey1() || map[y][x].isLock1())
-        g.fillStyle = "#ffcc00";
-    else if (map[y][x].isKey2() || map[y][x].isLock2())
-        g.fillStyle = "#00ccff";
-}
 // Draw player
 function drawPlayer(g) {
     g.fillStyle = "#ff0000";
