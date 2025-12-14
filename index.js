@@ -221,9 +221,7 @@ function drawMap(g) {
     // Draw map
     for (var y = 0; y < map.length; y++) {
         for (var x = 0; x < map[y].length; x++) {
-            map[x][y].color(g);
-            if (!map[y][x].isAir() && !map[y][x].isPlayer)
-                g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            map[x][y].draw(g, x, y);
         }
     }
 }
@@ -243,6 +241,8 @@ var Air = /** @class */ (function () {
     Air.prototype.isKey2 = function () { return false; };
     Air.prototype.isLock2 = function () { return false; };
     Air.prototype.color = function (g) {
+    };
+    Air.prototype.draw = function (g, x, y) {
     };
     return Air;
 }());
@@ -264,6 +264,10 @@ var Flux = /** @class */ (function () {
     Flux.prototype.color = function (g) {
         g.fillStyle = "#ccffcc";
     };
+    Flux.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#ccffcc";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
     return Flux;
 }());
 var Unbreakable = /** @class */ (function () {
@@ -284,6 +288,10 @@ var Unbreakable = /** @class */ (function () {
     Unbreakable.prototype.color = function (g) {
         g.fillStyle = "#999999";
     };
+    Unbreakable.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#999999";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
     return Unbreakable;
 }());
 var Player = /** @class */ (function () {
@@ -302,6 +310,8 @@ var Player = /** @class */ (function () {
     Player.prototype.isKey2 = function () { return false; };
     Player.prototype.isLock2 = function () { return false; };
     Player.prototype.color = function (g) {
+    };
+    Player.prototype.draw = function (g, x, y) {
     };
     return Player;
 }());
@@ -323,6 +333,10 @@ var Stone = /** @class */ (function () {
     Stone.prototype.color = function (g) {
         g.fillStyle = "#0000cc";
     };
+    Stone.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#0000cc";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
     return Stone;
 }());
 var FallingStone = /** @class */ (function () {
@@ -342,6 +356,10 @@ var FallingStone = /** @class */ (function () {
     FallingStone.prototype.isLock2 = function () { return false; };
     FallingStone.prototype.color = function (g) {
         g.fillStyle = "#0000cc";
+    };
+    FallingStone.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#0000cc";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     return FallingStone;
 }());
@@ -363,6 +381,10 @@ var Box = /** @class */ (function () {
     Box.prototype.color = function (g) {
         g.fillStyle = "#8b4513";
     };
+    Box.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#8b4513";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
     return Box;
 }());
 var FallingBox = /** @class */ (function () {
@@ -382,6 +404,10 @@ var FallingBox = /** @class */ (function () {
     FallingBox.prototype.isLock2 = function () { return false; };
     FallingBox.prototype.color = function (g) {
         g.fillStyle = "#8b4513";
+    };
+    FallingBox.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#8b4513";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     return FallingBox;
 }());
@@ -403,6 +429,10 @@ var Key1 = /** @class */ (function () {
     Key1.prototype.color = function (g) {
         g.fillStyle = "#ffcc00";
     };
+    Key1.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#ffcc00";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
     return Key1;
 }());
 var Lock1 = /** @class */ (function () {
@@ -422,6 +452,10 @@ var Lock1 = /** @class */ (function () {
     Lock1.prototype.isLock2 = function () { return false; };
     Lock1.prototype.color = function (g) {
         g.fillStyle = "#ffcc00";
+    };
+    Lock1.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#ffcc00";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     return Lock1;
 }());
@@ -443,6 +477,10 @@ var Key2 = /** @class */ (function () {
     Key2.prototype.color = function (g) {
         g.fillStyle = "#00ccff";
     };
+    Key2.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#00ccff";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
     return Key2;
 }());
 var Lock2 = /** @class */ (function () {
@@ -462,6 +500,10 @@ var Lock2 = /** @class */ (function () {
     Lock2.prototype.isLock2 = function () { return true; };
     Lock2.prototype.color = function (g) {
         g.fillStyle = "#00ccff";
+    };
+    Lock2.prototype.draw = function (g, x, y) {
+        g.fillStyle = "#00ccff";
+        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     return Lock2;
 }());
