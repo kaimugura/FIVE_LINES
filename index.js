@@ -18,14 +18,14 @@ var RawTile;
 })(RawTile || (RawTile = {}));
 var RawInput;
 (function (RawInput) {
-    RawInput[RawInput["RIGHT"] = 0] = "RIGHT";
-    RawInput[RawInput["LEFT"] = 1] = "LEFT";
-    RawInput[RawInput["UP"] = 2] = "UP";
-    RawInput[RawInput["DOWN"] = 3] = "DOWN";
+    RawInput[RawInput["UP"] = 0] = "UP";
+    RawInput[RawInput["DOWN"] = 1] = "DOWN";
+    RawInput[RawInput["LEFT"] = 2] = "LEFT";
+    RawInput[RawInput["RIGHT"] = 3] = "RIGHT";
 })(RawInput || (RawInput = {}));
 var playerx = 1;
 var playery = 1;
-var raMap = [
+var rawMap = [
     [2, 2, 2, 2, 2, 2, 2, 2],
     [2, 3, 0, 1, 1, 2, 0, 2],
     [2, 4, 2, 6, 1, 2, 0, 2],
@@ -67,7 +67,7 @@ var inputs = [];
 function removeLock1() {
     for (var y = 0; y < map.length; y++) {
         for (var x = 0; x < map[y].length; x++) {
-            if (map[y][x].isLock1) {
+            if (map[y][x].isLock1()) {
                 map[y][x] = new Air();
             }
         }
@@ -76,7 +76,7 @@ function removeLock1() {
 function removeLock2() {
     for (var y = 0; y < map.length; y++) {
         for (var x = 0; x < map[y].length; x++) {
-            if (map[y][x].isLock1) {
+            if (map[y][x].isLock2()) {
                 map[y][x] = new Air();
             }
         }
@@ -89,14 +89,14 @@ function moveToTile(newx, newy) {
     playery = newy;
 }
 function moveHorizontal(dx) {
-    if (map[playery][playerx + dx] == new Flux()
-        || map[playery][playerx + dx] === new Air()) {
+    if (map[playery][playerx + dx].isFlux()
+        || map[playery][playerx + dx].isAir()) {
         moveToTile(playerx + dx, playery);
     }
     else if ((map[playery][playerx + dx].isStone()
         || map[playery][playerx + dx].isBox())
-        && map[playery][playerx + dx + dx] === new Air()
-        && map[playery + 1][playerx + dx] !== new Air()) {
+        && map[playery][playerx + dx + dx].isAir()
+        && !map[playery + 1][playerx + dx].isAir()) {
         map[playery][playerx + dx + dx] = map[playery][playerx + dx];
         moveToTile(playerx + dx, playery);
     }
@@ -110,8 +110,8 @@ function moveHorizontal(dx) {
     }
 }
 function moveVertical(dy) {
-    if (map[playery + dy][playerx] === new Flux
-        || map[playery + dy][playerx] === new Air()) {
+    if (map[playery + dy][playerx].isFlux()
+        || map[playery + dy][playerx].isAir()) {
         moveToTile(playerx, playery + dy);
     }
     else if (map[playery + dy][playerx].isKey1()) {
@@ -190,20 +190,20 @@ function updateMap() {
 }
 function updateTile(x, y) {
     if ((map[y][x].isStone() || map[y][x].isFallingStone())
-        && map[y + 1][x] === new Air()) {
-        map[y + 1][x].isFallingStone();
+        && map[y + 1][x].isAir()) {
+        map[y + 1][x] = new FallingStone();
         map[y][x] = new Air();
     }
     else if ((map[y][x].isBox() || map[y][x].isFallingBox())
-        && map[y + 1][x] === new Air()) {
-        map[y + 1][x].isFallingBox();
+        && map[y + 1][x].isAir()) {
+        map[y + 1][x] = new FallingStone();
         map[y][x] = new Air();
     }
     else if (map[y][x].isFallingStone()) {
-        map[y][x].isStone();
+        map[y][x] = new Stone();
     }
     else if (map[y][x].isFallingBox()) {
-        map[y][x].isBox();
+        map[y][x] = new Box();
     }
 }
 function draw() {
@@ -221,7 +221,7 @@ function drawMap(g) {
     // Draw map
     for (var y = 0; y < map.length; y++) {
         for (var x = 0; x < map[y].length; x++) {
-            map[x][y].draw(g, x, y);
+            map[y][x].draw(g, x, y);
         }
     }
 }
@@ -531,11 +531,11 @@ var RIGHT_KEY = "ArrowRight";
 var DOWN_KEY = "ArrowDown";
 window.addEventListener("keydown", function (e) {
     if (e.key === LEFT_KEY || e.key === "a")
-        inputs.push(new Right());
-    else if (e.key === UP_KEY || e.key === "w")
         inputs.push(new Left());
-    else if (e.key === RIGHT_KEY || e.key === "d")
+    else if (e.key === UP_KEY || e.key === "w")
         inputs.push(new Up());
+    else if (e.key === RIGHT_KEY || e.key === "d")
+        inputs.push(new Right());
     else if (e.key === DOWN_KEY || e.key === "s")
         inputs.push(new Down());
 });
