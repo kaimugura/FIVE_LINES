@@ -82,47 +82,6 @@ function removeLock2() {
         }
     }
 }
-function moveToTile(newx, newy) {
-    map[playery][playerx] = new Air();
-    map[newy][newx] = new Player();
-    playerx = newx;
-    playery = newy;
-}
-function moveHorizontal(dx) {
-    if (map[playery][playerx + dx].isFlux()
-        || map[playery][playerx + dx].isAir()) {
-        moveToTile(playerx + dx, playery);
-    }
-    else if ((map[playery][playerx + dx].isStone()
-        || map[playery][playerx + dx].isBox())
-        && map[playery][playerx + dx + dx].isAir()
-        && !map[playery + 1][playerx + dx].isAir()) {
-        map[playery][playerx + dx + dx] = map[playery][playerx + dx];
-        moveToTile(playerx + dx, playery);
-    }
-    else if (map[playery][playerx + dx].isKey1()) {
-        removeLock1();
-        moveToTile(playerx + dx, playery);
-    }
-    else if (map[playery][playerx + dx].isKey2()) {
-        removeLock2();
-        moveToTile(playerx + dx, playery);
-    }
-}
-function moveVertical(dy) {
-    if (map[playery + dy][playerx].isFlux()
-        || map[playery + dy][playerx].isAir()) {
-        moveToTile(playerx, playery + dy);
-    }
-    else if (map[playery + dy][playerx].isKey1()) {
-        removeLock1();
-        moveToTile(playerx, playery + dy);
-    }
-    else if (map[playery + dy][playerx].isKey2()) {
-        removeLock2();
-        moveToTile(playerx, playery + dy);
-    }
-}
 function update() {
     handleInputs();
     updateMap();
@@ -141,7 +100,7 @@ var Right = /** @class */ (function () {
     Right.prototype.isUp = function () { return false; };
     Right.prototype.isDown = function () { return false; };
     Right.prototype.handle = function () {
-        moveHorizontal(1);
+        map[playery][playerx + 1].moveHorizontal(1);
     };
     return Right;
 }());
@@ -153,7 +112,7 @@ var Left = /** @class */ (function () {
     Left.prototype.isUp = function () { return false; };
     Left.prototype.isDown = function () { return false; };
     Left.prototype.handle = function () {
-        moveHorizontal(-1);
+        map[playery][playerx - 1].moveHorizontal(-1);
     };
     return Left;
 }());
@@ -165,7 +124,7 @@ var Up = /** @class */ (function () {
     Up.prototype.isUp = function () { return true; };
     Up.prototype.isDown = function () { return false; };
     Up.prototype.handle = function () {
-        moveVertical(-1);
+        map[playery - 1][playerx].moveVertical(-1);
     };
     return Up;
 }());
@@ -177,7 +136,7 @@ var Down = /** @class */ (function () {
     Down.prototype.isUp = function () { return false; };
     Down.prototype.isDown = function () { return true; };
     Down.prototype.handle = function () {
-        moveVertical(1);
+        map[playery + 1][playerx].moveVertical(1);
     };
     return Down;
 }());
@@ -196,7 +155,7 @@ function updateTile(x, y) {
     }
     else if ((map[y][x].isBox() || map[y][x].isFallingBox())
         && map[y + 1][x].isAir()) {
-        map[y + 1][x] = new FallingStone();
+        map[y + 1][x] = new FallingBox();
         map[y][x] = new Air();
     }
     else if (map[y][x].isFallingStone()) {
@@ -225,6 +184,26 @@ function drawMap(g) {
         }
     }
 }
+function drawPlayer(g) {
+    // Draw player
+    g.fillStyle = "#ff0000";
+    g.fillRect(playerx * TILE_SIZE, playery * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+}
+function gameLoop() {
+    var before = Date.now();
+    update();
+    draw();
+    var after = Date.now();
+    var frameTime = after - before;
+    var sleep = SLEEP - frameTime;
+    setTimeout(function () { return gameLoop(); }, sleep);
+}
+function moveToTile(newx, newy) {
+    map[playery][playerx] = new Air();
+    map[newy][newx] = new Player();
+    playerx = newx;
+    playery = newy;
+}
 var Air = /** @class */ (function () {
     function Air() {
     }
@@ -240,9 +219,17 @@ var Air = /** @class */ (function () {
     Air.prototype.isLock1 = function () { return false; };
     Air.prototype.isKey2 = function () { return false; };
     Air.prototype.isLock2 = function () { return false; };
+    Air.prototype.isEdible = function () { return true; };
+    Air.prototype.isPushable = function () { return false; };
     Air.prototype.color = function (g) {
     };
     Air.prototype.draw = function (g, x, y) {
+    };
+    Air.prototype.moveHorizontal = function (dx) {
+        moveToTile(playerx + dx, playery);
+    };
+    Air.prototype.moveVertical = function (dy) {
+        moveToTile(playerx, playery + dy);
     };
     return Air;
 }());
@@ -261,12 +248,20 @@ var Flux = /** @class */ (function () {
     Flux.prototype.isLock1 = function () { return false; };
     Flux.prototype.isKey2 = function () { return false; };
     Flux.prototype.isLock2 = function () { return false; };
+    Flux.prototype.isEdible = function () { return true; };
+    Flux.prototype.isPushable = function () { return false; };
     Flux.prototype.color = function (g) {
         g.fillStyle = "#ccffcc";
     };
     Flux.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ccffcc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Flux.prototype.moveHorizontal = function (dx) {
+        moveToTile(playerx + dx, playery);
+    };
+    Flux.prototype.moveVertical = function (dy) {
+        moveToTile(playerx, playery + dy);
     };
     return Flux;
 }());
@@ -285,12 +280,18 @@ var Unbreakable = /** @class */ (function () {
     Unbreakable.prototype.isLock1 = function () { return false; };
     Unbreakable.prototype.isKey2 = function () { return false; };
     Unbreakable.prototype.isLock2 = function () { return false; };
+    Unbreakable.prototype.isEdible = function () { return false; };
+    Unbreakable.prototype.isPushable = function () { return false; };
     Unbreakable.prototype.color = function (g) {
         g.fillStyle = "#999999";
     };
     Unbreakable.prototype.draw = function (g, x, y) {
         g.fillStyle = "#999999";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Unbreakable.prototype.moveHorizontal = function (dx) {
+    };
+    Unbreakable.prototype.moveVertical = function (dy) {
     };
     return Unbreakable;
 }());
@@ -309,9 +310,15 @@ var Player = /** @class */ (function () {
     Player.prototype.isLock1 = function () { return false; };
     Player.prototype.isKey2 = function () { return false; };
     Player.prototype.isLock2 = function () { return false; };
+    Player.prototype.isEdible = function () { return false; };
+    Player.prototype.isPushable = function () { return false; };
     Player.prototype.color = function (g) {
     };
     Player.prototype.draw = function (g, x, y) {
+    };
+    Player.prototype.moveHorizontal = function (dx) {
+    };
+    Player.prototype.moveVertical = function (dy) {
     };
     return Player;
 }());
@@ -330,12 +337,23 @@ var Stone = /** @class */ (function () {
     Stone.prototype.isLock1 = function () { return false; };
     Stone.prototype.isKey2 = function () { return false; };
     Stone.prototype.isLock2 = function () { return false; };
+    Stone.prototype.isEdible = function () { return false; };
+    Stone.prototype.isPushable = function () { return true; };
     Stone.prototype.color = function (g) {
         g.fillStyle = "#0000cc";
     };
     Stone.prototype.draw = function (g, x, y) {
         g.fillStyle = "#0000cc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Stone.prototype.moveHorizontal = function (dx) {
+        if (map[playery][playerx + dx + dx].isAir()
+            && !map[playery + 1][playerx + dx].isAir()) {
+            map[playery][playerx + dx + dx] = this;
+            moveToTile(playerx + dx, playery);
+        }
+    };
+    Stone.prototype.moveVertical = function (dy) {
     };
     return Stone;
 }());
@@ -354,12 +372,18 @@ var FallingStone = /** @class */ (function () {
     FallingStone.prototype.isLock1 = function () { return false; };
     FallingStone.prototype.isKey2 = function () { return false; };
     FallingStone.prototype.isLock2 = function () { return false; };
+    FallingStone.prototype.isEdible = function () { return false; };
+    FallingStone.prototype.isPushable = function () { return false; };
     FallingStone.prototype.color = function (g) {
         g.fillStyle = "#0000cc";
     };
     FallingStone.prototype.draw = function (g, x, y) {
         g.fillStyle = "#0000cc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    FallingStone.prototype.moveHorizontal = function (dx) {
+    };
+    FallingStone.prototype.moveVertical = function (dy) {
     };
     return FallingStone;
 }());
@@ -378,12 +402,23 @@ var Box = /** @class */ (function () {
     Box.prototype.isLock1 = function () { return false; };
     Box.prototype.isKey2 = function () { return false; };
     Box.prototype.isLock2 = function () { return false; };
+    Box.prototype.isEdible = function () { return false; };
+    Box.prototype.isPushable = function () { return true; };
     Box.prototype.color = function (g) {
         g.fillStyle = "#8b4513";
     };
     Box.prototype.draw = function (g, x, y) {
         g.fillStyle = "#8b4513";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Box.prototype.moveHorizontal = function (dx) {
+        if (map[playery][playerx + dx + dx].isAir()
+            && !map[playery + 1][playerx + dx].isAir()) {
+            map[playery][playerx + dx + dx] = this;
+            moveToTile(playerx + dx, playery);
+        }
+    };
+    Box.prototype.moveVertical = function (dy) {
     };
     return Box;
 }());
@@ -402,12 +437,18 @@ var FallingBox = /** @class */ (function () {
     FallingBox.prototype.isLock1 = function () { return false; };
     FallingBox.prototype.isKey2 = function () { return false; };
     FallingBox.prototype.isLock2 = function () { return false; };
+    FallingBox.prototype.isEdible = function () { return false; };
+    FallingBox.prototype.isPushable = function () { return false; };
     FallingBox.prototype.color = function (g) {
         g.fillStyle = "#8b4513";
     };
     FallingBox.prototype.draw = function (g, x, y) {
         g.fillStyle = "#8b4513";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    FallingBox.prototype.moveHorizontal = function (dx) {
+    };
+    FallingBox.prototype.moveVertical = function (dy) {
     };
     return FallingBox;
 }());
@@ -426,12 +467,22 @@ var Key1 = /** @class */ (function () {
     Key1.prototype.isLock1 = function () { return false; };
     Key1.prototype.isKey2 = function () { return false; };
     Key1.prototype.isLock2 = function () { return false; };
+    Key1.prototype.isEdible = function () { return false; };
+    Key1.prototype.isPushable = function () { return false; };
     Key1.prototype.color = function (g) {
         g.fillStyle = "#ffcc00";
     };
     Key1.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ffcc00";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Key1.prototype.moveHorizontal = function (dx) {
+        removeLock1();
+        moveToTile(playerx + dx, playery);
+    };
+    Key1.prototype.moveVertical = function (dy) {
+        removeLock1();
+        moveToTile(playerx, playery + dy);
     };
     return Key1;
 }());
@@ -450,12 +501,18 @@ var Lock1 = /** @class */ (function () {
     Lock1.prototype.isLock1 = function () { return true; };
     Lock1.prototype.isKey2 = function () { return false; };
     Lock1.prototype.isLock2 = function () { return false; };
+    Lock1.prototype.isEdible = function () { return false; };
+    Lock1.prototype.isPushable = function () { return false; };
     Lock1.prototype.color = function (g) {
         g.fillStyle = "#ffcc00";
     };
     Lock1.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ffcc00";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Lock1.prototype.moveHorizontal = function (dx) {
+    };
+    Lock1.prototype.moveVertical = function (dy) {
     };
     return Lock1;
 }());
@@ -474,12 +531,22 @@ var Key2 = /** @class */ (function () {
     Key2.prototype.isLock1 = function () { return false; };
     Key2.prototype.isKey2 = function () { return true; };
     Key2.prototype.isLock2 = function () { return false; };
+    Key2.prototype.isEdible = function () { return false; };
+    Key2.prototype.isPushable = function () { return false; };
     Key2.prototype.color = function (g) {
         g.fillStyle = "#00ccff";
     };
     Key2.prototype.draw = function (g, x, y) {
         g.fillStyle = "#00ccff";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    };
+    Key2.prototype.moveHorizontal = function (dx) {
+        removeLock2();
+        moveToTile(playerx + dx, playery);
+    };
+    Key2.prototype.moveVertical = function (dy) {
+        removeLock2();
+        moveToTile(playerx, playery + dy);
     };
     return Key2;
 }());
@@ -498,6 +565,8 @@ var Lock2 = /** @class */ (function () {
     Lock2.prototype.isLock1 = function () { return false; };
     Lock2.prototype.isKey2 = function () { return false; };
     Lock2.prototype.isLock2 = function () { return true; };
+    Lock2.prototype.isEdible = function () { return false; };
+    Lock2.prototype.isPushable = function () { return false; };
     Lock2.prototype.color = function (g) {
         g.fillStyle = "#00ccff";
     };
@@ -505,22 +574,12 @@ var Lock2 = /** @class */ (function () {
         g.fillStyle = "#00ccff";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
+    Lock2.prototype.moveHorizontal = function (dx) {
+    };
+    Lock2.prototype.moveVertical = function (dy) {
+    };
     return Lock2;
 }());
-// Draw player
-function drawPlayer(g) {
-    g.fillStyle = "#ff0000";
-    g.fillRect(playerx * TILE_SIZE, playery * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-function gameLoop() {
-    var before = Date.now();
-    update();
-    draw();
-    var after = Date.now();
-    var frameTime = after - before;
-    var sleep = SLEEP - frameTime;
-    setTimeout(function () { return gameLoop(); }, sleep);
-}
 window.onload = function () {
     transformMap();
     gameLoop();
