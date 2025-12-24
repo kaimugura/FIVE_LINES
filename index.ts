@@ -39,8 +39,8 @@ function transformTile(tile: RawTile) {
   case RawTile.UNBREAKABLE: return new Unbreakable();
   case RawTile.STONE: return new Stone(new Falling());
   case RawTile.FALLING_STONE: return new Stone(new Resting());
-  case RawTile.BOX: return new Box();
-  case RawTile.FALLING_BOX: return new FallingBox();
+  case RawTile.BOX: return new Box(new Falling());
+  case RawTile.FALLING_BOX: return new FallingBox(new Resting());
   case RawTile.FLUX: return new Flux();
   case RawTile.KEY1: return new Key1();
   case RawTile.LOCK1: return new Lock1();
@@ -137,12 +137,12 @@ function updateTile(x: number , y: number ){
     map[y][x] = new Air();
   }else if (map[y][x].isBoxy()
     && map[y + 1][x].isAir()) {
-    map[y + 1][x] = new FallingBox();
+    map[y + 1][x] = new FallingBox(new Resting());
     map[y][x] =  new Air();
   } else if (map[y][x].isFallingStone()) {
     map[y][x] = new Stone(new Resting());
   } else if (map[y][x].isFallingBox()) {
-    map[y][x] = new Box();
+    map[y][x] = new Box(new Falling());
   }
 }
 
@@ -287,8 +287,7 @@ class Player implements Tile {
 interface FallingState {
   isFalling(): boolean;
 
-  moveHorizontal(
-    tile: Tile, dx: number): void;  
+  moveHorizontal(tile: Tile, dx: number): void;  
 }
 
 class Falling implements FallingState {
@@ -335,9 +334,11 @@ class Stone implements Tile{
 }
 
 class Box implements Tile {
+  constructor(private falling: FallingState) { }
+
   isAir() {return false;}
   isFallingStone() {return false;}
-  isFallingBox() {return false;}
+  isFallingBox() {return this.falling.isFalling()}
   isLock1() {return false;}
   isLock2() {return false;}
   isStony() { return false;}
@@ -349,20 +350,18 @@ class Box implements Tile {
     g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
   moveHorizontal(dx: number){
-    if (map[playery][playerx + dx + dx].isAir()
-      && !map[playery + 1][playerx + dx].isAir()) {
-      map[playery][playerx + dx + dx] = this;
-      moveToTile(playerx + dx, playery);
-    }
+    this.falling.moveHorizontal(this, dx);
   }
   moveVertical(dy: number){
   }
 }
 
 class FallingBox implements Tile {
+  constructor(private falling: FallingState) {}
+
   isAir() {return false;}
   isFallingStone() {return false;}
-  isFallingBox() {return true;}
+  isFallingBox() {return this.falling.isFalling();}
   isLock1() {return false;}
   isLock2() {return false;}
   isStony() { return false;}
@@ -374,6 +373,7 @@ class FallingBox implements Tile {
     g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
   moveHorizontal(dx: number){
+    this.falling.moveHorizontal(this, dx);
   }
   moveVertical(dy: number){
   }
