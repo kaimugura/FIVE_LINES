@@ -139,14 +139,11 @@ function updateTile(x, y) {
     }
     else if (map[y][x].isBoxy()
         && map[y + 1][x].isAir()) {
-        map[y + 1][x] = new FallingBox(new Resting());
+        map[y + 1][x] = new Box(new Falling());
         map[y][x] = new Air();
     }
-    else if (map[y][x].isFallingStone()) {
-        map[y][x] = new Stone(new Resting());
-    }
-    else if (map[y][x].isFallingBox()) {
-        map[y][x] = new Box(new Falling());
+    else if (map[y][x].isFalling()) {
+        map[y][x].rest();
     }
 }
 function draw() {
@@ -198,6 +195,7 @@ var Air = /** @class */ (function () {
     Air.prototype.isLock2 = function () { return false; };
     Air.prototype.isStony = function () { return false; };
     Air.prototype.isBoxy = function () { return false; };
+    Air.prototype.isFalling = function () { return false; };
     Air.prototype.draw = function (g, x, y) {
     };
     Air.prototype.moveHorizontal = function (dx) {
@@ -206,6 +204,8 @@ var Air = /** @class */ (function () {
     Air.prototype.moveVertical = function (dy) {
         moveToTile(playerx, playery + dy);
     };
+    Air.prototype.drop = function () { };
+    Air.prototype.rest = function () { };
     return Air;
 }());
 var Flux = /** @class */ (function () {
@@ -218,6 +218,7 @@ var Flux = /** @class */ (function () {
     Flux.prototype.isLock2 = function () { return false; };
     Flux.prototype.isStony = function () { return false; };
     Flux.prototype.isBoxy = function () { return false; };
+    Flux.prototype.isFalling = function () { return false; };
     Flux.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ccffcc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -228,6 +229,8 @@ var Flux = /** @class */ (function () {
     Flux.prototype.moveVertical = function (dy) {
         moveToTile(playerx, playery + dy);
     };
+    Flux.prototype.drop = function () { };
+    Flux.prototype.rest = function () { };
     return Flux;
 }());
 var Unbreakable = /** @class */ (function () {
@@ -240,6 +243,7 @@ var Unbreakable = /** @class */ (function () {
     Unbreakable.prototype.isLock2 = function () { return false; };
     Unbreakable.prototype.isStony = function () { return false; };
     Unbreakable.prototype.isBoxy = function () { return false; };
+    Unbreakable.prototype.isFalling = function () { return false; };
     Unbreakable.prototype.draw = function (g, x, y) {
         g.fillStyle = "#999999";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -248,6 +252,8 @@ var Unbreakable = /** @class */ (function () {
     };
     Unbreakable.prototype.moveVertical = function (dy) {
     };
+    Unbreakable.prototype.drop = function () { };
+    Unbreakable.prototype.rest = function () { };
     return Unbreakable;
 }());
 var Player = /** @class */ (function () {
@@ -260,12 +266,15 @@ var Player = /** @class */ (function () {
     Player.prototype.isLock2 = function () { return false; };
     Player.prototype.isStony = function () { return false; };
     Player.prototype.isBoxy = function () { return false; };
+    Player.prototype.isFalling = function () { return false; };
     Player.prototype.draw = function (g, x, y) {
     };
     Player.prototype.moveHorizontal = function (dx) {
     };
     Player.prototype.moveVertical = function (dy) {
     };
+    Player.prototype.drop = function () { };
+    Player.prototype.rest = function () { };
     return Player;
 }());
 var Falling = /** @class */ (function () {
@@ -300,6 +309,7 @@ var Stone = /** @class */ (function () {
     Stone.prototype.isLock2 = function () { return false; };
     Stone.prototype.isStony = function () { return true; };
     Stone.prototype.isBoxy = function () { return false; };
+    Stone.prototype.isFalling = function () { return this.falling.isFalling(); };
     Stone.prototype.draw = function (g, x, y) {
         g.fillStyle = "#0000cc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -309,6 +319,8 @@ var Stone = /** @class */ (function () {
     };
     Stone.prototype.moveVertical = function (dy) {
     };
+    Stone.prototype.drop = function () { this.falling = new Falling(); };
+    Stone.prototype.rest = function () { this.falling = new Resting(); };
     return Stone;
 }());
 var Box = /** @class */ (function () {
@@ -322,6 +334,7 @@ var Box = /** @class */ (function () {
     Box.prototype.isLock2 = function () { return false; };
     Box.prototype.isStony = function () { return false; };
     Box.prototype.isBoxy = function () { return true; };
+    Box.prototype.isFalling = function () { return this.falling.isFalling(); };
     Box.prototype.draw = function (g, x, y) {
         g.fillStyle = "#8b4513";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -331,6 +344,8 @@ var Box = /** @class */ (function () {
     };
     Box.prototype.moveVertical = function (dy) {
     };
+    Box.prototype.drop = function () { this.falling = new Falling(); };
+    Box.prototype.rest = function () { this.falling = new Resting(); };
     return Box;
 }());
 var FallingBox = /** @class */ (function () {
@@ -344,6 +359,7 @@ var FallingBox = /** @class */ (function () {
     FallingBox.prototype.isLock2 = function () { return false; };
     FallingBox.prototype.isStony = function () { return false; };
     FallingBox.prototype.isBoxy = function () { return true; };
+    FallingBox.prototype.isFalling = function () { return this.falling.isFalling(); };
     FallingBox.prototype.draw = function (g, x, y) {
         g.fillStyle = "#8b4513";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -353,6 +369,8 @@ var FallingBox = /** @class */ (function () {
     };
     FallingBox.prototype.moveVertical = function (dy) {
     };
+    FallingBox.prototype.drop = function () { };
+    FallingBox.prototype.rest = function () { };
     return FallingBox;
 }());
 var Key1 = /** @class */ (function () {
@@ -365,6 +383,7 @@ var Key1 = /** @class */ (function () {
     Key1.prototype.isLock2 = function () { return false; };
     Key1.prototype.isStony = function () { return false; };
     Key1.prototype.isBoxy = function () { return false; };
+    Key1.prototype.isFalling = function () { return false; };
     Key1.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ffcc00";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -377,6 +396,8 @@ var Key1 = /** @class */ (function () {
         removeLock1();
         moveToTile(playerx, playery + dy);
     };
+    Key1.prototype.drop = function () { };
+    Key1.prototype.rest = function () { };
     return Key1;
 }());
 var Lock1 = /** @class */ (function () {
@@ -389,6 +410,7 @@ var Lock1 = /** @class */ (function () {
     Lock1.prototype.isLock2 = function () { return false; };
     Lock1.prototype.isStony = function () { return false; };
     Lock1.prototype.isBoxy = function () { return false; };
+    Lock1.prototype.isFalling = function () { return false; };
     Lock1.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ffcc00";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -397,6 +419,8 @@ var Lock1 = /** @class */ (function () {
     };
     Lock1.prototype.moveVertical = function (dy) {
     };
+    Lock1.prototype.drop = function () { };
+    Lock1.prototype.rest = function () { };
     return Lock1;
 }());
 var Key2 = /** @class */ (function () {
@@ -409,6 +433,7 @@ var Key2 = /** @class */ (function () {
     Key2.prototype.isLock2 = function () { return false; };
     Key2.prototype.isStony = function () { return false; };
     Key2.prototype.isBoxy = function () { return false; };
+    Key2.prototype.isFalling = function () { return false; };
     Key2.prototype.draw = function (g, x, y) {
         g.fillStyle = "#00ccff";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -421,6 +446,8 @@ var Key2 = /** @class */ (function () {
         removeLock2();
         moveToTile(playerx, playery + dy);
     };
+    Key2.prototype.drop = function () { };
+    Key2.prototype.rest = function () { };
     return Key2;
 }());
 var Lock2 = /** @class */ (function () {
@@ -433,6 +460,7 @@ var Lock2 = /** @class */ (function () {
     Lock2.prototype.isLock2 = function () { return true; };
     Lock2.prototype.isStony = function () { return false; };
     Lock2.prototype.isBoxy = function () { return false; };
+    Lock2.prototype.isFalling = function () { return false; };
     Lock2.prototype.draw = function (g, x, y) {
         g.fillStyle = "#00ccff";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -441,6 +469,8 @@ var Lock2 = /** @class */ (function () {
     };
     Lock2.prototype.moveVertical = function (dy) {
     };
+    Lock2.prototype.drop = function () { };
+    Lock2.prototype.rest = function () { };
     return Lock2;
 }());
 window.onload = function () {
