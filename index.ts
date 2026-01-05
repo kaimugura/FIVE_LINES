@@ -131,15 +131,7 @@ function updateMap(){
 }
 
 function updateTile(x: number , y: number ){
-  if (map[y][x].isStony() && map[y + 1][x].isAir()
-    || map[y][x].isBoxy() && map[y + 1][x].isAir()) {
-    map[y][x].drop();
-    map[y+1][x] = map[y][x];
-    map[y][x] = new Air();
-
-  } else if (map[y][x].isFalling()){
-    map[y][x].rest();
-  }
+  map[y][x].update(x, y);
 }
 
 function draw() {
@@ -197,6 +189,7 @@ interface Tile {
   moveVertical(dy: number): void;
   drop(): void;
   rest(): void;
+  update(x: number, y: number): void;
 }
 
 function moveToTile(newx: number, newy: number) {
@@ -227,6 +220,7 @@ class Air implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Flux implements Tile {
@@ -252,6 +246,7 @@ class Flux implements Tile {
   
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Unbreakable implements Tile {
@@ -276,6 +271,7 @@ class Unbreakable implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Player implements Tile {
@@ -297,6 +293,7 @@ class Player implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 interface FallingState {
@@ -350,6 +347,15 @@ class Stone implements Tile{
 
   drop() { this.falling = new Falling(); }
   rest() { this.falling = new Resting(); }
+  update(x: number, y: number) {
+    if (map[y + 1][x].isAir()) {
+      this.falling = new Falling();
+      map[y+1][x] = this;
+      map[y][x] = new Air();
+    } else if (this.falling.isFalling()){
+      this.falling = new Resting();
+    }
+  }
 }
 
 class Box implements Tile {
@@ -377,6 +383,15 @@ class Box implements Tile {
 
   drop() {this.falling = new Falling();}
   rest() {this.falling = new Resting();}
+  update(x: number, y: number) {
+    if (map[y + 1][x].isAir()) {
+      this.falling = new Falling();
+      map[y+1][x] = this;
+      map[y][x] = new Air();
+    } else if (this.falling.isFalling()){
+      this.falling = new Resting();
+    }
+  }
 }
 
 class FallingBox implements Tile {
@@ -404,6 +419,7 @@ class FallingBox implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Key1 implements Tile {
@@ -432,6 +448,7 @@ class Key1 implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Lock1 implements Tile {
@@ -456,6 +473,7 @@ class Lock1 implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Key2 implements Tile {
@@ -484,6 +502,7 @@ class Key2 implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 class Lock2 implements Tile {
@@ -508,6 +527,7 @@ class Lock2 implements Tile {
 
   drop() {}
   rest() {}
+  update(x: number, y: number) {}
 }
 
 window.onload = () => {

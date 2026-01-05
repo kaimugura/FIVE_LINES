@@ -132,15 +132,7 @@ function updateMap() {
     }
 }
 function updateTile(x, y) {
-    if (map[y][x].isStony() && map[y + 1][x].isAir()
-        || map[y][x].isBoxy() && map[y + 1][x].isAir()) {
-        map[y][x].drop();
-        map[y + 1][x] = map[y][x];
-        map[y][x] = new Air();
-    }
-    else if (map[y][x].isFalling()) {
-        map[y][x].rest();
-    }
+    map[y][x].update(x, y);
 }
 function draw() {
     var g = createGraphics();
@@ -202,6 +194,7 @@ var Air = /** @class */ (function () {
     };
     Air.prototype.drop = function () { };
     Air.prototype.rest = function () { };
+    Air.prototype.update = function (x, y) { };
     return Air;
 }());
 var Flux = /** @class */ (function () {
@@ -227,6 +220,7 @@ var Flux = /** @class */ (function () {
     };
     Flux.prototype.drop = function () { };
     Flux.prototype.rest = function () { };
+    Flux.prototype.update = function (x, y) { };
     return Flux;
 }());
 var Unbreakable = /** @class */ (function () {
@@ -250,6 +244,7 @@ var Unbreakable = /** @class */ (function () {
     };
     Unbreakable.prototype.drop = function () { };
     Unbreakable.prototype.rest = function () { };
+    Unbreakable.prototype.update = function (x, y) { };
     return Unbreakable;
 }());
 var Player = /** @class */ (function () {
@@ -271,6 +266,7 @@ var Player = /** @class */ (function () {
     };
     Player.prototype.drop = function () { };
     Player.prototype.rest = function () { };
+    Player.prototype.update = function (x, y) { };
     return Player;
 }());
 var Falling = /** @class */ (function () {
@@ -317,6 +313,16 @@ var Stone = /** @class */ (function () {
     };
     Stone.prototype.drop = function () { this.falling = new Falling(); };
     Stone.prototype.rest = function () { this.falling = new Resting(); };
+    Stone.prototype.update = function (x, y) {
+        if (map[y + 1][x].isAir()) {
+            this.falling = new Falling();
+            map[y + 1][x] = this;
+            map[y][x] = new Air();
+        }
+        else if (this.falling.isFalling()) {
+            this.falling = new Resting();
+        }
+    };
     return Stone;
 }());
 var Box = /** @class */ (function () {
@@ -342,6 +348,16 @@ var Box = /** @class */ (function () {
     };
     Box.prototype.drop = function () { this.falling = new Falling(); };
     Box.prototype.rest = function () { this.falling = new Resting(); };
+    Box.prototype.update = function (x, y) {
+        if (map[y + 1][x].isAir()) {
+            this.falling = new Falling();
+            map[y + 1][x] = this;
+            map[y][x] = new Air();
+        }
+        else if (this.falling.isFalling()) {
+            this.falling = new Resting();
+        }
+    };
     return Box;
 }());
 var FallingBox = /** @class */ (function () {
@@ -367,6 +383,7 @@ var FallingBox = /** @class */ (function () {
     };
     FallingBox.prototype.drop = function () { };
     FallingBox.prototype.rest = function () { };
+    FallingBox.prototype.update = function (x, y) { };
     return FallingBox;
 }());
 var Key1 = /** @class */ (function () {
@@ -394,6 +411,7 @@ var Key1 = /** @class */ (function () {
     };
     Key1.prototype.drop = function () { };
     Key1.prototype.rest = function () { };
+    Key1.prototype.update = function (x, y) { };
     return Key1;
 }());
 var Lock1 = /** @class */ (function () {
@@ -417,6 +435,7 @@ var Lock1 = /** @class */ (function () {
     };
     Lock1.prototype.drop = function () { };
     Lock1.prototype.rest = function () { };
+    Lock1.prototype.update = function (x, y) { };
     return Lock1;
 }());
 var Key2 = /** @class */ (function () {
@@ -444,6 +463,7 @@ var Key2 = /** @class */ (function () {
     };
     Key2.prototype.drop = function () { };
     Key2.prototype.rest = function () { };
+    Key2.prototype.update = function (x, y) { };
     return Key2;
 }());
 var Lock2 = /** @class */ (function () {
@@ -467,6 +487,7 @@ var Lock2 = /** @class */ (function () {
     };
     Lock2.prototype.drop = function () { };
     Lock2.prototype.rest = function () { };
+    Lock2.prototype.update = function (x, y) { };
     return Lock2;
 }());
 window.onload = function () {
