@@ -177,13 +177,8 @@ var Air = /** @class */ (function () {
     function Air() {
     }
     Air.prototype.isAir = function () { return true; };
-    Air.prototype.isFallingStone = function () { return false; };
-    Air.prototype.isFallingBox = function () { return false; };
     Air.prototype.isLock1 = function () { return false; };
     Air.prototype.isLock2 = function () { return false; };
-    Air.prototype.isStony = function () { return false; };
-    Air.prototype.isBoxy = function () { return false; };
-    Air.prototype.isFalling = function () { return false; };
     Air.prototype.draw = function (g, x, y) {
     };
     Air.prototype.moveHorizontal = function (dx) {
@@ -201,13 +196,8 @@ var Flux = /** @class */ (function () {
     function Flux() {
     }
     Flux.prototype.isAir = function () { return false; };
-    Flux.prototype.isFallingStone = function () { return false; };
-    Flux.prototype.isFallingBox = function () { return false; };
     Flux.prototype.isLock1 = function () { return false; };
     Flux.prototype.isLock2 = function () { return false; };
-    Flux.prototype.isStony = function () { return false; };
-    Flux.prototype.isBoxy = function () { return false; };
-    Flux.prototype.isFalling = function () { return false; };
     Flux.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ccffcc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -227,13 +217,8 @@ var Unbreakable = /** @class */ (function () {
     function Unbreakable() {
     }
     Unbreakable.prototype.isAir = function () { return false; };
-    Unbreakable.prototype.isFallingStone = function () { return false; };
-    Unbreakable.prototype.isFallingBox = function () { return false; };
     Unbreakable.prototype.isLock1 = function () { return false; };
     Unbreakable.prototype.isLock2 = function () { return false; };
-    Unbreakable.prototype.isStony = function () { return false; };
-    Unbreakable.prototype.isBoxy = function () { return false; };
-    Unbreakable.prototype.isFalling = function () { return false; };
     Unbreakable.prototype.draw = function (g, x, y) {
         g.fillStyle = "#999999";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -251,13 +236,8 @@ var Player = /** @class */ (function () {
     function Player() {
     }
     Player.prototype.isAir = function () { return false; };
-    Player.prototype.isFallingStone = function () { return false; };
-    Player.prototype.isFallingBox = function () { return false; };
     Player.prototype.isLock1 = function () { return false; };
     Player.prototype.isLock2 = function () { return false; };
-    Player.prototype.isStony = function () { return false; };
-    Player.prototype.isBoxy = function () { return false; };
-    Player.prototype.isFalling = function () { return false; };
     Player.prototype.draw = function (g, x, y) {
     };
     Player.prototype.moveHorizontal = function (dx) {
@@ -295,13 +275,8 @@ var Stone = /** @class */ (function () {
         this.falling = falling;
     }
     Stone.prototype.isAir = function () { return false; };
-    Stone.prototype.isFallingStone = function () { return this.falling.isFalling(); };
-    Stone.prototype.isFallingBox = function () { return false; };
     Stone.prototype.isLock1 = function () { return false; };
     Stone.prototype.isLock2 = function () { return false; };
-    Stone.prototype.isStony = function () { return true; };
-    Stone.prototype.isBoxy = function () { return false; };
-    Stone.prototype.isFalling = function () { return this.falling.isFalling(); };
     Stone.prototype.draw = function (g, x, y) {
         g.fillStyle = "#0000cc";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -330,13 +305,8 @@ var Box = /** @class */ (function () {
         this.falling = falling;
     }
     Box.prototype.isAir = function () { return false; };
-    Box.prototype.isFallingStone = function () { return false; };
-    Box.prototype.isFallingBox = function () { return this.falling.isFalling(); };
     Box.prototype.isLock1 = function () { return false; };
     Box.prototype.isLock2 = function () { return false; };
-    Box.prototype.isStony = function () { return false; };
-    Box.prototype.isBoxy = function () { return true; };
-    Box.prototype.isFalling = function () { return this.falling.isFalling(); };
     Box.prototype.draw = function (g, x, y) {
         g.fillStyle = "#8b4513";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -365,13 +335,8 @@ var FallingBox = /** @class */ (function () {
         this.falling = falling;
     }
     FallingBox.prototype.isAir = function () { return false; };
-    FallingBox.prototype.isFallingStone = function () { return false; };
-    FallingBox.prototype.isFallingBox = function () { return this.falling.isFalling(); };
     FallingBox.prototype.isLock1 = function () { return false; };
     FallingBox.prototype.isLock2 = function () { return false; };
-    FallingBox.prototype.isStony = function () { return false; };
-    FallingBox.prototype.isBoxy = function () { return true; };
-    FallingBox.prototype.isFalling = function () { return this.falling.isFalling(); };
     FallingBox.prototype.draw = function (g, x, y) {
         g.fillStyle = "#8b4513";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -390,13 +355,8 @@ var Key1 = /** @class */ (function () {
     function Key1() {
     }
     Key1.prototype.isAir = function () { return false; };
-    Key1.prototype.isFallingStone = function () { return false; };
-    Key1.prototype.isFallingBox = function () { return false; };
     Key1.prototype.isLock1 = function () { return false; };
     Key1.prototype.isLock2 = function () { return false; };
-    Key1.prototype.isStony = function () { return false; };
-    Key1.prototype.isBoxy = function () { return false; };
-    Key1.prototype.isFalling = function () { return false; };
     Key1.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ffcc00";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -418,13 +378,8 @@ var Lock1 = /** @class */ (function () {
     function Lock1() {
     }
     Lock1.prototype.isAir = function () { return false; };
-    Lock1.prototype.isFallingStone = function () { return false; };
-    Lock1.prototype.isFallingBox = function () { return false; };
     Lock1.prototype.isLock1 = function () { return true; };
     Lock1.prototype.isLock2 = function () { return false; };
-    Lock1.prototype.isStony = function () { return false; };
-    Lock1.prototype.isBoxy = function () { return false; };
-    Lock1.prototype.isFalling = function () { return false; };
     Lock1.prototype.draw = function (g, x, y) {
         g.fillStyle = "#ffcc00";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -442,13 +397,8 @@ var Key2 = /** @class */ (function () {
     function Key2() {
     }
     Key2.prototype.isAir = function () { return false; };
-    Key2.prototype.isFallingStone = function () { return false; };
-    Key2.prototype.isFallingBox = function () { return false; };
     Key2.prototype.isLock1 = function () { return false; };
     Key2.prototype.isLock2 = function () { return false; };
-    Key2.prototype.isStony = function () { return false; };
-    Key2.prototype.isBoxy = function () { return false; };
-    Key2.prototype.isFalling = function () { return false; };
     Key2.prototype.draw = function (g, x, y) {
         g.fillStyle = "#00ccff";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -470,13 +420,8 @@ var Lock2 = /** @class */ (function () {
     function Lock2() {
     }
     Lock2.prototype.isAir = function () { return false; };
-    Lock2.prototype.isFallingStone = function () { return false; };
-    Lock2.prototype.isFallingBox = function () { return false; };
     Lock2.prototype.isLock1 = function () { return false; };
     Lock2.prototype.isLock2 = function () { return true; };
-    Lock2.prototype.isStony = function () { return false; };
-    Lock2.prototype.isBoxy = function () { return false; };
-    Lock2.prototype.isFalling = function () { return false; };
     Lock2.prototype.draw = function (g, x, y) {
         g.fillStyle = "#00ccff";
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
