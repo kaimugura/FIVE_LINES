@@ -282,7 +282,7 @@ var Stone = /** @class */ (function () {
 }());
 var Box = /** @class */ (function () {
     function Box(falling) {
-        this.falling = falling;
+        this.fallStrategy = new FallStrategy(falling);
     }
     Box.prototype.isAir = function () { return false; };
     Box.prototype.isLock1 = function () { return false; };
@@ -292,19 +292,12 @@ var Box = /** @class */ (function () {
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     Box.prototype.moveHorizontal = function (dx) {
-        this.falling.moveHorizontal(this, dx);
+        this.fallStrategy.getFalling().moveHorizontal(this, dx);
     };
     Box.prototype.moveVertical = function (dy) {
     };
     Box.prototype.update = function (x, y) {
-        if (map[y + 1][x].isAir()) {
-            this.falling = new Falling();
-            map[y + 1][x] = this;
-            map[y][x] = new Air();
-        }
-        else if (this.falling.isFalling()) {
-            this.falling = new Resting();
-        }
+        this.fallStrategy.update(this, x, y);
     };
     return Box;
 }());
