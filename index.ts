@@ -47,8 +47,9 @@ function transformTile(tile: RawTile) {
   case RawTile.KEY2: return new Key2();
   case RawTile.LOCK2: return new Lock2();
   default: assertExhausted(tile);
+  }
 }
-}
+
 function transformMap() {
   map = new Array(rawMap.length);
   for (let y = 0; y < rawMap.length; y++) {
@@ -59,27 +60,38 @@ function transformMap() {
   }
 }
 
-
 let inputs: Input[] = [];
 
-function removeLock1() {
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x].isLock1()){
+function remove(
+  shouldRemove: RemoveStrategy)
+{
+  for (let y = 0; y < map.length; y++)
+    for (let x = 0; x < map[y].length; x++)
+      if (shouldRemove.check(map[y][x])){
         map[y][x] = new Air();
       }
-    }
+}
+
+function check(tile: Tile){
+  return tile.isLock1()
+}
+
+class RemoveLock1 implements
+RemoveStrategy{
+  check(tile: Tile){
+    return tile.isLock1();
   }
 }
 
-function removeLock2() {
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x].isLock2()) {
-        map[y][x] = new Air();
-      }
-    }
+class RemoveLock2 implements
+RemoveStrategy{
+  check(tile: Tile){
+    return tile.isLock2();
   }
+}
+
+interface RemoveStrategy {
+  check(tile: Tile): boolean;
 }
 
 function update() {
@@ -380,11 +392,11 @@ class Key1 implements Tile {
     g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
   moveHorizontal(dx: number){
-    removeLock1();
+    remove(new RemoveLock1);
     moveToTile(playerx + dx, playery);
   }
   moveVertical(dy: number){
-    removeLock1();
+    remove(new RemoveLock1);
     moveToTile(playerx, playery + dy);
   }
   update(x: number, y: number) {}
@@ -418,11 +430,11 @@ class Key2 implements Tile {
     g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
   moveHorizontal(dx: number){
-    removeLock2();
+    remove(new RemoveLock2);
     moveToTile(playerx + dx, playery);
   }
   moveVertical(dy: number){
-    removeLock2();
+    remove(new RemoveLock2);
     moveToTile(playerx, playery + dy);
   }
   update(x: number, y: number) {}

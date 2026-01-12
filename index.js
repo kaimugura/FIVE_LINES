@@ -64,24 +64,32 @@ function transformMap() {
     }
 }
 var inputs = [];
-function removeLock1() {
-    for (var y = 0; y < map.length; y++) {
-        for (var x = 0; x < map[y].length; x++) {
-            if (map[y][x].isLock1()) {
+function remove(shouldRemove) {
+    for (var y = 0; y < map.length; y++)
+        for (var x = 0; x < map[y].length; x++)
+            if (shouldRemove.check(map[y][x])) {
                 map[y][x] = new Air();
             }
-        }
-    }
 }
-function removeLock2() {
-    for (var y = 0; y < map.length; y++) {
-        for (var x = 0; x < map[y].length; x++) {
-            if (map[y][x].isLock2()) {
-                map[y][x] = new Air();
-            }
-        }
-    }
+function check(tile) {
+    return tile.isLock1();
 }
+var RemoveLock1 = /** @class */ (function () {
+    function RemoveLock1() {
+    }
+    RemoveLock1.prototype.check = function (tile) {
+        return tile.isLock1();
+    };
+    return RemoveLock1;
+}());
+var RemoveLock2 = /** @class */ (function () {
+    function RemoveLock2() {
+    }
+    RemoveLock2.prototype.check = function (tile) {
+        return tile.isLock2();
+    };
+    return RemoveLock2;
+}());
 function update() {
     handleInputs();
     updateMap();
@@ -350,11 +358,11 @@ var Key1 = /** @class */ (function () {
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     Key1.prototype.moveHorizontal = function (dx) {
-        removeLock1();
+        remove(new RemoveLock1);
         moveToTile(playerx + dx, playery);
     };
     Key1.prototype.moveVertical = function (dy) {
-        removeLock1();
+        remove(new RemoveLock1);
         moveToTile(playerx, playery + dy);
     };
     Key1.prototype.update = function (x, y) { };
@@ -388,11 +396,11 @@ var Key2 = /** @class */ (function () {
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     Key2.prototype.moveHorizontal = function (dx) {
-        removeLock2();
+        remove(new RemoveLock2);
         moveToTile(playerx + dx, playery);
     };
     Key2.prototype.moveVertical = function (dy) {
-        removeLock2();
+        remove(new RemoveLock2);
         moveToTile(playerx, playery + dy);
     };
     Key2.prototype.update = function (x, y) { };
