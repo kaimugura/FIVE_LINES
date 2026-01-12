@@ -47,10 +47,10 @@ function transformTile(tile) {
         case RawTile.BOX: return new Box(new Falling());
         case RawTile.FALLING_BOX: return new FallingBox(new Resting());
         case RawTile.FLUX: return new Flux();
-        case RawTile.KEY1: return new Key1();
-        case RawTile.LOCK1: return new Lock1();
-        case RawTile.KEY2: return new Key2();
-        case RawTile.LOCK2: return new Lock2();
+        case RawTile.KEY1: return new Key("#ffcc00", new RemoveLock1());
+        case RawTile.LOCK1: return new TileLock("#ffcc00", true);
+        case RawTile.KEY2: return new Key("#00ccff", new RemoveLock2());
+        case RawTile.LOCK2: return new TileLock("#00ccff", false);
         default: assertExhausted(tile);
     }
 }
@@ -347,81 +347,47 @@ var FallingBox = /** @class */ (function () {
     FallingBox.prototype.update = function (x, y) { };
     return FallingBox;
 }());
-var Key1 = /** @class */ (function () {
-    function Key1() {
+var Key = /** @class */ (function () {
+    function Key(color, removeStrategy) {
+        this.color = color;
+        this.removeStrategy = removeStrategy;
     }
-    Key1.prototype.isAir = function () { return false; };
-    Key1.prototype.isLock1 = function () { return false; };
-    Key1.prototype.isLock2 = function () { return false; };
-    Key1.prototype.draw = function (g, x, y) {
-        g.fillStyle = "#ffcc00";
+    Key.prototype.isAir = function () { return false; };
+    Key.prototype.isLock1 = function () { return false; };
+    Key.prototype.isLock2 = function () { return false; };
+    Key.prototype.draw = function (g, x, y) {
+        g.fillStyle = this.color;
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
-    Key1.prototype.moveHorizontal = function (dx) {
-        remove(new RemoveLock1);
+    Key.prototype.moveHorizontal = function (dx) {
+        remove(this.removeStrategy);
         moveToTile(playerx + dx, playery);
     };
-    Key1.prototype.moveVertical = function (dy) {
-        remove(new RemoveLock1);
+    Key.prototype.moveVertical = function (dy) {
+        remove(this.removeStrategy);
         moveToTile(playerx, playery + dy);
     };
-    Key1.prototype.update = function (x, y) { };
-    return Key1;
+    Key.prototype.update = function (x, y) { };
+    return Key;
 }());
-var Lock1 = /** @class */ (function () {
-    function Lock1() {
+var TileLock = /** @class */ (function () {
+    function TileLock(color, lock1) {
+        this.color = color;
+        this.lock1 = lock1;
     }
-    Lock1.prototype.isAir = function () { return false; };
-    Lock1.prototype.isLock1 = function () { return true; };
-    Lock1.prototype.isLock2 = function () { return false; };
-    Lock1.prototype.draw = function (g, x, y) {
-        g.fillStyle = "#ffcc00";
+    TileLock.prototype.isAir = function () { return false; };
+    TileLock.prototype.isLock1 = function () { return this.lock1; };
+    TileLock.prototype.isLock2 = function () { return !this.lock1; };
+    TileLock.prototype.draw = function (g, x, y) {
+        g.fillStyle = this.color;
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
-    Lock1.prototype.moveHorizontal = function (dx) {
+    TileLock.prototype.moveHorizontal = function (dx) {
     };
-    Lock1.prototype.moveVertical = function (dy) {
+    TileLock.prototype.moveVertical = function (dy) {
     };
-    Lock1.prototype.update = function (x, y) { };
-    return Lock1;
-}());
-var Key2 = /** @class */ (function () {
-    function Key2() {
-    }
-    Key2.prototype.isAir = function () { return false; };
-    Key2.prototype.isLock1 = function () { return false; };
-    Key2.prototype.isLock2 = function () { return false; };
-    Key2.prototype.draw = function (g, x, y) {
-        g.fillStyle = "#00ccff";
-        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-    };
-    Key2.prototype.moveHorizontal = function (dx) {
-        remove(new RemoveLock2);
-        moveToTile(playerx + dx, playery);
-    };
-    Key2.prototype.moveVertical = function (dy) {
-        remove(new RemoveLock2);
-        moveToTile(playerx, playery + dy);
-    };
-    Key2.prototype.update = function (x, y) { };
-    return Key2;
-}());
-var Lock2 = /** @class */ (function () {
-    function Lock2() {
-    }
-    Lock2.prototype.isAir = function () { return false; };
-    Lock2.prototype.isLock1 = function () { return false; };
-    Lock2.prototype.isLock2 = function () { return true; };
-    Lock2.prototype.draw = function (g, x, y) {
-        g.fillStyle = "#00ccff";
-        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-    };
-    Lock2.prototype.moveHorizontal = function (dx) {
-    };
-    Lock2.prototype.moveVertical = function (dy) {
-    };
-    Lock2.prototype.update = function (x, y) { };
-    return Lock2;
+    TileLock.prototype.update = function (x, y) { };
+    return TileLock;
 }());
 window.onload = function () {
     transformMap();
