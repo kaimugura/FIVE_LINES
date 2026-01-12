@@ -47,10 +47,10 @@ function transformTile(tile) {
         case RawTile.BOX: return new Box(new Falling());
         case RawTile.FALLING_BOX: return new FallingBox(new Resting());
         case RawTile.FLUX: return new Flux();
-        case RawTile.KEY1: return new Key("#ffcc00", new RemoveLock1());
-        case RawTile.LOCK1: return new TileLock("#ffcc00", true);
-        case RawTile.KEY2: return new Key("#00ccff", new RemoveLock2());
-        case RawTile.LOCK2: return new TileLock("#00ccff", false);
+        case RawTile.KEY1: return new Key(YELLOW_KEY);
+        case RawTile.LOCK1: return new TileLock(YELLOW_KEY);
+        case RawTile.KEY2: return new Key(BLUE_KEY);
+        case RawTile.LOCK2: return new TileLock(BLUE_KEY);
         default: assertExhausted(tile);
     }
 }
@@ -348,38 +348,36 @@ var FallingBox = /** @class */ (function () {
     return FallingBox;
 }());
 var Key = /** @class */ (function () {
-    function Key(color, removeStrategy) {
-        this.color = color;
-        this.removeStrategy = removeStrategy;
+    function Key(keyConf) {
+        this.keyConf = keyConf;
     }
     Key.prototype.isAir = function () { return false; };
     Key.prototype.isLock1 = function () { return false; };
     Key.prototype.isLock2 = function () { return false; };
     Key.prototype.draw = function (g, x, y) {
-        g.fillStyle = this.color;
+        g.fillStyle = this.keyConf.getColor();
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     Key.prototype.moveHorizontal = function (dx) {
-        remove(this.removeStrategy);
+        remove(this.keyConf.getRemoveStrategy());
         moveToTile(playerx + dx, playery);
     };
     Key.prototype.moveVertical = function (dy) {
-        remove(this.removeStrategy);
+        remove(this.keyConf.getRemoveStrategy());
         moveToTile(playerx, playery + dy);
     };
     Key.prototype.update = function (x, y) { };
     return Key;
 }());
 var TileLock = /** @class */ (function () {
-    function TileLock(color, lock1) {
-        this.color = color;
-        this.lock1 = lock1;
+    function TileLock(keyConf) {
+        this.keyConf = keyConf;
     }
     TileLock.prototype.isAir = function () { return false; };
-    TileLock.prototype.isLock1 = function () { return this.lock1; };
-    TileLock.prototype.isLock2 = function () { return !this.lock1; };
+    TileLock.prototype.isLock1 = function () { return this.keyConf.isl(); };
+    TileLock.prototype.isLock2 = function () { return !this.keyConf.isl(); };
     TileLock.prototype.draw = function (g, x, y) {
-        g.fillStyle = this.color;
+        g.fillStyle = this.keyConf.getColor();
         g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     };
     TileLock.prototype.moveHorizontal = function (dx) {
@@ -389,6 +387,21 @@ var TileLock = /** @class */ (function () {
     TileLock.prototype.update = function (x, y) { };
     return TileLock;
 }());
+var KeyConfigulation = /** @class */ (function () {
+    function KeyConfigulation(color, _l, removeStrategy) {
+        this.color = color;
+        this._l = _l;
+        this.removeStrategy = removeStrategy;
+    }
+    KeyConfigulation.prototype.getColor = function () { return this.color; };
+    KeyConfigulation.prototype.isl = function () { return this._l; };
+    KeyConfigulation.prototype.getRemoveStrategy = function () {
+        return this.removeStrategy;
+    };
+    return KeyConfigulation;
+}());
+var YELLOW_KEY = new KeyConfigulation("#ffcc00", true, new RemoveLock1());
+var BLUE_KEY = new KeyConfigulation("#00ccff", true, new RemoveLock1());
 window.onload = function () {
     transformMap();
     gameLoop();

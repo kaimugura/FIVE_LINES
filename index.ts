@@ -42,10 +42,10 @@ function transformTile(tile: RawTile) {
   case RawTile.BOX: return new Box(new Falling());
   case RawTile.FALLING_BOX: return new FallingBox(new Resting());
   case RawTile.FLUX: return new Flux();
-  case RawTile.KEY1: return new Key("#ffcc00",new RemoveLock1());
-  case RawTile.LOCK1: return new TileLock("#ffcc00",true );
-  case RawTile.KEY2: return new Key("#00ccff",new RemoveLock2());
-  case RawTile.LOCK2: return new TileLock("#00ccff",false );
+  case RawTile.KEY1: return new Key(YELLOW_KEY);
+  case RawTile.LOCK1: return new TileLock(YELLOW_KEY);
+  case RawTile.KEY2: return new Key(BLUE_KEY);
+  case RawTile.LOCK2: return new TileLock(BLUE_KEY);
   default: assertExhausted(tile);
   }
 }
@@ -383,8 +383,7 @@ class FallingBox implements Tile {
 
 class Key implements Tile{
   constructor(
-    private color: string,
-    private removeStrategy: RemoveStrategy)
+    private keyConf: KeyConfigulation)
     {}
   isAir() {return false;}
   isLock1() {return false;}
@@ -392,15 +391,15 @@ class Key implements Tile{
 
   draw(g: CanvasRenderingContext2D, x: number, y: number)
   {
-    g.fillStyle = this.color;
+    g.fillStyle = this.keyConf.getColor();
     g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
   moveHorizontal(dx: number){
-    remove(this.removeStrategy);
+    remove(this.keyConf.getRemoveStrategy());
     moveToTile(playerx + dx, playery);
   }
   moveVertical(dy: number){
-    remove(this.removeStrategy);
+    remove(this.keyConf.getRemoveStrategy());
     moveToTile(playerx, playery + dy);
   }
   update(x: number, y: number) {}
@@ -408,17 +407,16 @@ class Key implements Tile{
 
 class TileLock implements Tile{
   constructor(
-    private color: string,
-    private lock1: boolean
-  ){}
-
+    private keyConf: KeyConfigulation)
+    {}
+  
   isAir() {return false;}
-  isLock1() {return this.lock1;}
-  isLock2() {return !this.lock1;}
+  isLock1() {return this.keyConf.isl();}
+  isLock2() {return !this.keyConf.isl();}
 
   draw(g: CanvasRenderingContext2D, x: number, y: number)
   {
-    g.fillStyle = this.color;
+    g.fillStyle = this.keyConf.getColor();
     g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
   moveHorizontal(dx: number){
@@ -427,6 +425,25 @@ class TileLock implements Tile{
   }
   update(x: number, y: number) {}
 }
+
+class KeyConfigulation{
+  constructor(
+    private color: string,
+    private _l:boolean,
+    private removeStrategy: RemoveStrategy)
+  {}
+  getColor() { return this.color;}
+  isl(){return this._l;}
+  getRemoveStrategy(){
+    return this.removeStrategy;
+  }
+}
+
+const YELLOW_KEY =
+  new KeyConfigulation("#ffcc00", true, new RemoveLock1());
+
+const BLUE_KEY =
+  new KeyConfigulation("#00ccff", true, new RemoveLock1());
 
 window.onload = () => {
   transformMap();
